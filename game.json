@@ -1,0 +1,8 @@
+{
+  "title": "2048 with Save",
+  "description": "Merge tiles to reach 2048. Your progress is saved automatically.",
+  "keywords": ["puzzle", "2048", "numbers", "math", "logic"],
+  "category": "Puzzle",
+  "author": "PewPlay",
+  "playMode": "SinglePlayer"
+}
