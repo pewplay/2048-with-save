@@ -32,7 +32,7 @@ GameManager.prototype.loadGame = function (loadData) {
   try {
     this.fromJSON(atob(loadData.match(/{([^{}]*)}$/)[1]));
   } catch (e) {
-    alert('Failed to load your saving, the file may be broken.');
+    alert('Could not load this save file. It may be broken or not a 2048 save.');
   }
 };
 
