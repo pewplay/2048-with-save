@@ -1,48 +1,68 @@
 {
   "$schema": "https://raw.githubusercontent.com/pewplay/pewplay/main/schema/game.schema.json",
   "title": "2048 with Save",
-  "description": "Merge tiles to reach 2048. Your progress is saved automatically.",
-  "about": "2048 with Save is a browser game where you use the arrow keys to slide all tiles. Matching numbers merge; reach 2048. Use Save and Load to keep a board for later.\n\nStart a round in your browser and use the controls below to play.",
-  "howToPlay": "Use the arrow keys to slide all tiles. Matching numbers merge; reach 2048. Use Save and Load to keep a board for later.",
+  "description": "Slide and merge number tiles to reach 2048, then save your board as an image file and load it later. Free to play in your browser.",
+  "about": "2048 with Save is the classic sliding number puzzle with one handy extra: you can keep any game for later. Every move slides all tiles on the 4x4 board, and two tiles with the same number merge into their sum. Keep combining until you build the 2048 tile, then carry on for an even higher score if you like.\n\nThe SAVE button downloads your current board as a small PNG picture that secretly holds the whole game, including your score. Press LOAD and pick that file to continue exactly where you left off, even days later. Your unfinished game and best score are also remembered automatically in this browser.\n\nIt is a relaxing yet tricky puzzle for anyone who likes numbers, planning ahead and beating their own record.",
+  "howToPlay": "Move all tiles up, down, left or right at once. When two tiles with the same number collide, they merge into one tile worth their sum and add to your score. A new 2 or 4 appears after every move. Reach the 2048 tile to win; the game ends when the board is full and no merges are left.",
   "controls": [
     {
-      "input": "Arrow keys",
-      "action": "Slide tiles"
+      "input": "← ↑ → ↓ / WASD",
+      "action": "Slide the tiles"
     },
     {
-      "input": "Save / Load",
-      "action": "Store or restore a board"
+      "input": "Swipe",
+      "action": "Slide the tiles on touch screens"
     },
     {
-      "input": "Restart",
-      "action": "Begin a new board"
+      "input": "Space",
+      "action": "Start a new game"
+    },
+    {
+      "input": "Click / Tap",
+      "action": "Use the SAVE, LOAD and NEW GAME buttons"
     }
   ],
   "tips": [
-    "Use arrow keys to slide tiles.",
-    "Try another round to practice the timing and strategy."
+    "Keep your biggest tile in one corner and build the rest of the board around it.",
+    "Use mostly two or three directions and avoid the one that pulls your big tile out of its corner.",
+    "Press SAVE before a risky move so you can load the file and try a different plan.",
+    "Keep a row full of large tiles so it does not shift when you slide sideways."
   ],
   "faq": [
     {
-      "question": "How do I play 2048 with Save?",
-      "answer": "Use the arrow keys to slide all tiles. Matching numbers merge; reach 2048. Use Save and Load to keep a board for later."
+      "question": "Is 2048 with Save free to play?",
+      "answer": "Yes. It is completely free and runs in your browser with no sign-up or download."
     },
     {
-      "question": "Can I play 2048 with Save in a browser?",
-      "answer": "Yes. Open the game page and play without installing an app."
+      "question": "Can I play it on my phone or tablet?",
+      "answer": "Yes, swipe on the board to move the tiles. Saving to a file is easiest on a computer, but your current game is also kept automatically in the browser on any device."
+    },
+    {
+      "question": "How does saving work?",
+      "answer": "SAVE downloads a PNG image that contains your board and score. Click LOAD (or drop the file onto the board) to restore that game at any time."
     }
   ],
   "category": "Puzzle",
   "tags": [
-    "puzzle",
     "2048",
-    "numbers",
+    "number puzzle",
+    "sliding tiles",
+    "save game",
     "math",
     "logic"
   ],
+  "author": "PewPlay",
   "playMode": "SinglePlayer",
   "orientation": "any",
   "cover": "cover.png",
-  "draft": true,
-  "author": "PewPlay"
+  "screenshots": [
+    "screenshots/1.png",
+    "screenshots/2.png",
+    "screenshots/3.png"
+  ],
+  "exclude": [
+    "style/main.scss",
+    "style/helpers.scss",
+    ".jshintrc"
+  ]
 }

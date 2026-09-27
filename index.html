@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>2048</title>
+  <title>2048 with Save</title>
 
   <link href="style/main.css" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" href="favicon.ico">
@@ -11,7 +11,7 @@
 
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body>
   <div class="container">
@@ -22,14 +22,14 @@
         <div class="best-container">0</div>
       </div>
     </div>
-    <p class="game-intro">Unisciti ai numeri e arriva a <strong>2048!</strong></p>
+    <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
     <div class="save-load">
-      <a class="save-game" href="" target="_blank" download="2048save.png">SALVA</a>
-      <label class="load-game"><input type="file" class="load-game-file" value="" />CARICA</label>
-      <a class="restart-game">RIAVVIA</a>
+      <a class="save-game" href="" target="_blank" download="2048save.png">SAVE</a>
+      <label class="load-game"><input type="file" class="load-game-file" value="" />LOAD</label>
+      <a class="restart-game">NEW GAME</a>
     </div>
     <div class="game-container">
-      <img class="game-save-image" />
+      <img class="game-save-image" alt="" />
       <div class="game-message">
         <p></p>
         <div class="lower">
@@ -71,7 +71,7 @@
     </div>
 
     <p class="game-explanation">
-      <strong class="important">Come giocare:</strong> Usa i tasti freccia per spostare le tessere. Quando due tessere con lo stesso numero si toccano, si fondono in una sola!
+      <strong class="important">How to play:</strong> Use your arrow keys (or swipe) to move the tiles. When two tiles with the same number touch, they merge into one! Press SAVE to download your game as an image and LOAD to continue it later.
     </p>
   </div>
 

@@ -17,7 +17,7 @@ function GameManager(size, InputManager, Actuator, ScoreManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.actuator.continue();
-  localStorage.removeItem('2048-with-save:grid');
+  localStorage.removeItem('2048Grid');
   this.setup();
 };
 
@@ -32,7 +32,7 @@ GameManager.prototype.loadGame = function (loadData) {
   try {
     this.fromJSON(atob(loadData.match(/{([^{}]*)}$/)[1]));
   } catch (e) {
-    alert('Failed to load your saving, the file may be broken.');
+    alert('Could not load this save file. It may be broken or not a 2048 save.');
   }
 };
 
@@ -53,7 +53,7 @@ GameManager.prototype.setup = function () {
   this.won         = false;
   this.keepPlaying = false;
   
-  var storage = localStorage.getItem('2048-with-save:grid');
+  var storage = localStorage.getItem('2048Grid');
   try {
     this.fromJSON(storage);
   } catch (e) {
