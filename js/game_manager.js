@@ -17,7 +17,7 @@ function GameManager(size, InputManager, Actuator, ScoreManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.actuator.continue();
-  localStorage.removeItem('2048Grid');
+  localStorage.removeItem('2048-with-save:grid');
   this.setup();
 };
 
@@ -53,7 +53,7 @@ GameManager.prototype.setup = function () {
   this.won         = false;
   this.keepPlaying = false;
   
-  var storage = localStorage.getItem('2048Grid');
+  var storage = localStorage.getItem('2048-with-save:grid');
   try {
     this.fromJSON(storage);
   } catch (e) {

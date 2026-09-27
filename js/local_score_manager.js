@@ -19,14 +19,14 @@ window.fakeStorage = {
 };
 
 function LocalScoreManager() {
-  this.key     = "bestScore";
+  this.key     = "2048-with-save:bestScore";
 
   var supported = this.localStorageSupported();
   this.storage = supported ? window.localStorage : window.fakeStorage;
 }
 
 LocalScoreManager.prototype.localStorageSupported = function () {
-  var testKey = "test";
+  var testKey = "2048-with-save:test";
   var storage = window.localStorage;
 
   try {

@@ -2,6 +2,36 @@
   "$schema": "https://raw.githubusercontent.com/pewplay/pewplay/main/schema/game.schema.json",
   "title": "2048 with Save",
   "description": "Merge tiles to reach 2048. Your progress is saved automatically.",
+  "about": "2048 with Save is a browser game where you use the arrow keys to slide all tiles. Matching numbers merge; reach 2048. Use Save and Load to keep a board for later.\n\nStart a round in your browser and use the controls below to play.",
+  "howToPlay": "Use the arrow keys to slide all tiles. Matching numbers merge; reach 2048. Use Save and Load to keep a board for later.",
+  "controls": [
+    {
+      "input": "Arrow keys",
+      "action": "Slide tiles"
+    },
+    {
+      "input": "Save / Load",
+      "action": "Store or restore a board"
+    },
+    {
+      "input": "Restart",
+      "action": "Begin a new board"
+    }
+  ],
+  "tips": [
+    "Use arrow keys to slide tiles.",
+    "Try another round to practice the timing and strategy."
+  ],
+  "faq": [
+    {
+      "question": "How do I play 2048 with Save?",
+      "answer": "Use the arrow keys to slide all tiles. Matching numbers merge; reach 2048. Use Save and Load to keep a board for later."
+    },
+    {
+      "question": "Can I play 2048 with Save in a browser?",
+      "answer": "Yes. Open the game page and play without installing an app."
+    }
+  ],
   "category": "Puzzle",
   "tags": [
     "puzzle",
@@ -10,6 +40,9 @@
     "math",
     "logic"
   ],
-  "author": "PewPlay",
-  "playMode": "SinglePlayer"
+  "playMode": "SinglePlayer",
+  "orientation": "any",
+  "cover": "cover.png",
+  "draft": true,
+  "author": "PewPlay"
 }
