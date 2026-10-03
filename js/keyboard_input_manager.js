@@ -1,6 +1,5 @@
 function KeyboardInputManager() {
   this.events = {};
-
   this.listen();
 }
 
@@ -24,93 +23,134 @@ KeyboardInputManager.prototype.listen = function () {
   var self = this;
 
   var map = {
-    38: 0, // Up
-    39: 1, // Right
-    40: 2, // Down
-    37: 3, // Left
-    75: 0, // vim keybindings
-    76: 1,
-    74: 2,
-    72: 3,
-    87: 0, // W
-    68: 1, // D
-    83: 2, // S
-    65: 3  // A
+    ArrowUp: 0, ArrowRight: 1, ArrowDown: 2, ArrowLeft: 3,
+    Up: 0, Right: 1, Down: 2, Left: 3,       // old Edge / IE names
+    KeyW: 0, KeyD: 1, KeyS: 2, KeyA: 3,
+    KeyK: 0, KeyL: 1, KeyJ: 2, KeyH: 3       // Vim keys
   };
 
+  // Respond to direction keys
   document.addEventListener("keydown", function (event) {
-    var modifiers = event.altKey || event.ctrlKey || event.metaKey ||
-                    event.shiftKey;
-    var mapped    = map[event.which];
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    var mapped = map[event.code];
+    if (mapped === undefined) mapped = map[event.key];
 
-    if (!modifiers) {
-      if (mapped !== undefined) {
-        event.preventDefault();
-        self.emit("move", mapped);
-      }
-
-      if (event.which === 32) self.restart.bind(self)(event);
+    if (mapped !== undefined) {
+      event.preventDefault();
+      self.emit("move", mapped);
+    } else if (event.code === "Space" || event.key === " ") {
+      if (event.target.closest && event.target.closest("button, a, label, input")) return;
+      event.preventDefault();
+      self.emit("restart");
     }
   });
 
-  var retry = document.querySelector(".retry-button");
-  retry.addEventListener("click", this.restart.bind(this));
-  retry.addEventListener("touchend", this.restart.bind(this));
-  var restart = document.querySelector(".restart-game");
-  restart.addEventListener("click", this.restart.bind(this));
-  restart.addEventListener("touchend", this.restart.bind(this));
+  // Respond to button presses
+  this.bindButtonPress(".retry-button", this.restart);
+  this.bindButtonPress(".restart-game", this.restart);
+  this.bindButtonPress(".keep-playing-button", this.keepPlaying);
 
-  var keepPlaying = document.querySelector(".keep-playing-button");
-  keepPlaying.addEventListener("click", this.keepPlaying.bind(this));
-  keepPlaying.addEventListener("touchend", this.keepPlaying.bind(this));
+  // Save: the link already holds the PNG as a data URL with a download name
+  var saveLink = document.querySelector(".save-game");
+  saveLink.addEventListener("click", function (event) {
+    if (!saveLink.getAttribute("href") || saveLink.getAttribute("href") === "#") {
+      event.preventDefault();
+      return;
+    }
+    self.emit("saved");
+  });
 
+  // Load from a file picker...
   var loadGameFile = document.querySelector(".load-game-file");
-  loadGameFile.addEventListener('change', function (e) {
+  loadGameFile.addEventListener("change", function () {
     var file = loadGameFile.files[0];
     self.readFile(file);
-    loadGameFile.value = '';
+    loadGameFile.value = "";
   });
+
+  // ...or from a file dropped on the board
   var gameContainer = document.querySelector(".game-container");
-  gameContainer.addEventListener('drop', function (e) {
+  var dragDepth = 0;
+  function hasFiles(e) {
+    return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], "Files") !== -1;
+  }
+  gameContainer.addEventListener("dragenter", function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth++;
+    gameContainer.classList.add("dragging");
+  });
+  gameContainer.addEventListener("dragleave", function () {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (!dragDepth) gameContainer.classList.remove("dragging");
+  });
+  gameContainer.addEventListener("dragover", function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  });
+  gameContainer.addEventListener("drop", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepth = 0;
+    gameContainer.classList.remove("dragging");
     var files = e.dataTransfer.files;
-    if (files.length === 1) self.readFile(files[0]);
-    e.stopPropagation(); e.preventDefault();
-  }, false);
-  gameContainer.addEventListener('dragover', function (e) {
-    e.stopPropagation(); e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  }, false);
+    if (files.length) self.readFile(files[0]);
+  });
+  // Dropping a file elsewhere must not navigate away from the game
+  document.addEventListener("dragover", function (e) { e.preventDefault(); });
+  document.addEventListener("drop", function (e) { e.preventDefault(); });
 
+  // Swipes anywhere on the page (touch, pen or mouse drag)
+  this.listenSwipes(document.getElementById("app") || document.body);
+};
 
-  // Listen to swipe events
-  var touchStartClientX, touchStartClientY;
+// One move per gesture: it fires as soon as the finger has travelled far enough,
+// so moves feel instant, and a short quick flick still counts on release.
+KeyboardInputManager.prototype.listenSwipes = function (area) {
+  var self = this;
+  var start = null;
 
-  gameContainer.addEventListener("touchstart", function (event) {
-    if (event.touches.length > 1) return;
+  function threshold() {
+    return Math.max(14, Math.min(40, Math.min(window.innerWidth, window.innerHeight) * 0.045));
+  }
 
-    touchStartClientX = event.touches[0].clientX;
-    touchStartClientY = event.touches[0].clientY;
-    event.preventDefault();
+  function direction(dx, dy) {
+    return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0);
+  }
+
+  area.addEventListener("pointerdown", function (event) {
+    if (!event.isPrimary) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (event.target.closest && event.target.closest("button, a, label, input")) return;
+    start = { x: event.clientX, y: event.clientY, id: event.pointerId, done: false };
+    try { area.setPointerCapture(event.pointerId); } catch (e) {}
+    if (event.pointerType !== "mouse") event.preventDefault();
   });
 
-  gameContainer.addEventListener("touchmove", function (event) {
-    event.preventDefault();
-  });
-
-  gameContainer.addEventListener("touchend", function (event) {
-    if (event.touches.length > 0) return;
-
-    var dx = event.changedTouches[0].clientX - touchStartClientX;
-    var absDx = Math.abs(dx);
-
-    var dy = event.changedTouches[0].clientY - touchStartClientY;
-    var absDy = Math.abs(dy);
-
-    if (Math.max(absDx, absDy) > 10) {
-      // (right : left) : (down : up)
-      self.emit("move", absDx > absDy ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
+  area.addEventListener("pointermove", function (event) {
+    if (!start || start.done || event.pointerId !== start.id) return;
+    var dx = event.clientX - start.x, dy = event.clientY - start.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) >= threshold()) {
+      start.done = true;
+      self.emit("move", direction(dx, dy));
     }
   });
+
+  function end(event) {
+    if (!start || event.pointerId !== start.id) return;
+    var s = start;
+    start = null;
+    if (s.done || event.type === "pointercancel") return;
+    var dx = event.clientX - s.x, dy = event.clientY - s.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) >= 10) self.emit("move", direction(dx, dy));
+  }
+
+  area.addEventListener("pointerup", end);
+  area.addEventListener("pointercancel", end);
+  area.addEventListener("contextmenu", function (event) { event.preventDefault(); });
+  // Stop iOS from scrolling or zooming the page while swiping.
+  area.addEventListener("touchmove", function (event) { event.preventDefault(); }, { passive: false });
 };
 
 KeyboardInputManager.prototype.restart = function (event) {
@@ -123,14 +163,15 @@ KeyboardInputManager.prototype.keepPlaying = function (event) {
   this.emit("keepPlaying");
 };
 
-KeyboardInputManager.prototype.loadGame = function (loadData) {
-  this.emit("loadGame", loadData);
-}
-
 KeyboardInputManager.prototype.readFile = function (file) {
   var self = this, reader = new FileReader();
-  reader.addEventListener('load', function () {
-    self.loadGame.apply(self, [reader.result]);
+  reader.addEventListener("load", function () {
+    self.emit("loadGame", String(reader.result));
   });
   if (file) reader.readAsText(file);
-}
+};
+
+KeyboardInputManager.prototype.bindButtonPress = function (selector, fn) {
+  var button = document.querySelector(selector);
+  if (button) button.addEventListener("click", fn.bind(this));
+};

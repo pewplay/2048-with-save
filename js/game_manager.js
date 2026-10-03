@@ -10,6 +10,9 @@ function GameManager(size, InputManager, Actuator, ScoreManager) {
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
   this.inputManager.on("loadGame", this.loadGame.bind(this));
+  this.inputManager.on("saved", function () {
+    this.actuator.toast("Board saved as 2048save.png. Use Load to continue it later.");
+  }.bind(this));
 
   this.setup();
 }
@@ -17,7 +20,7 @@ function GameManager(size, InputManager, Actuator, ScoreManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.actuator.continue();
-  localStorage.removeItem('2048Grid');
+  this.scoreManager.clearGrid();
   this.setup();
 };
 
@@ -25,14 +28,18 @@ GameManager.prototype.restart = function () {
 GameManager.prototype.keepPlaying = function () {
   this.keepPlaying = true;
   this.actuator.continue();
+  this.actuator.updateSave(this);
 };
 
 // Load game
 GameManager.prototype.loadGame = function (loadData) {
   try {
-    this.fromJSON(atob(loadData.match(/{([^{}]*)}$/)[1]));
+    var match = loadData.match(/\{([A-Za-z0-9+\/=]+)\}\s*$/);
+    var json = decodeURIComponent(escape(atob(match[1])));
+    this.fromJSON(json);
+    this.actuator.toast("Game loaded. Score: " + this.score);
   } catch (e) {
-    alert('Could not load this save file. It may be broken or not a 2048 save.');
+    this.actuator.toast("This file is not a 2048 save. Pick a PNG made with the Save button.");
   }
 };
 
@@ -53,10 +60,16 @@ GameManager.prototype.setup = function () {
   this.won         = false;
   this.keepPlaying = false;
   
-  var storage = localStorage.getItem('2048Grid');
+  var storage = this.scoreManager.getGrid();
   try {
+    if (!storage) throw new Error("no saved game");
     this.fromJSON(storage);
   } catch (e) {
+    this.grid        = new Grid(this.size);
+    this.score       = 0;
+    this.over        = false;
+    this.won         = false;
+    this.keepPlaying = false;
     // Add the initial tiles
     this.addStartTiles();
     // Update the actuator
@@ -274,7 +287,17 @@ GameManager.prototype.fromJSON = function (loadData) {
   var self = this;
   var temp = {};
   var copy = JSON.parse(loadData);
+  if (!copy || !Array.isArray(copy.grid) || copy.grid.length !== this.size * this.size) {
+    throw new Error("Invalid save data");
+  }
+  copy.grid.forEach(function (value) {
+    if (value && (typeof value !== "number" || value < 2 || (value & (value - 1)) !== 0)) {
+      throw new Error("Invalid tile value");
+    }
+  });
   this.saving.map(function (k) { temp[k] = copy[k]; });
+  temp.score = Math.max(0, +temp.score || 0);
+  temp.over = !!temp.over; temp.won = !!temp.won; temp.keepPlaying = !!temp.keepPlaying;
   temp.grid = new Grid(this.size);
   copy.grid.forEach(function (value, pos) {
     if (!value) return;
