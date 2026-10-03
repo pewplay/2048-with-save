@@ -4,7 +4,7 @@ function HTMLActuator() {
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
   this.saveGame         = document.querySelector(".save-game");
-  this.saveGameImage    = document.querySelector(".game-save-image");
+  this.toastEl          = document.querySelector(".toast");
 
   this.score = 0;
 }
@@ -148,7 +148,15 @@ HTMLActuator.prototype.updateSave = function (gm) {
   var save = btoa(unescape(encodeURIComponent(game))); 
   var url = meta + btoa(atob(data) + '\0\0\0\0{' + save + '}');
   this.saveGame.href = url;
-  this.saveGameImage.src = url;
-  if (!gm.over) localStorage.setItem('2048Grid', game);
-  else localStorage.removeItem('2048Grid');
-}
+  if (!gm.over) gm.scoreManager.setGrid(game);
+  else gm.scoreManager.clearGrid();
+};
+
+HTMLActuator.prototype.toast = function (text) {
+  var el = this.toastEl;
+  if (!el) return;
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(this.toastTimer);
+  this.toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2600);
+};
